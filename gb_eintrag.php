@@ -1,24 +1,20 @@
 <?php
 //Authentifizierungs-Prüfung
-require_once("field_validator.class.php");
-require_once("form_validator.class.php");
-
 session_start();
 if(!isset($_SESSION['benutzer_id']))
 	header("Location:gb_login.php");
-	
-$form;
-$error = array();
+$error[] = array();
 if (isset($_POST["betreff"]) && isset($_POST["beitrag"]))
 {
-	$betreff = $_POST["betreff"];
-	$beitrag = $_POST["beitrag"];
+	$betreff = trim($_POST["betreff"]);
+	$beitrag = trim($_POST["beitrag"]);
 	
-	//Fehlerüberprüfung mit den Validator-Klassen
-	$form = new FormValidator(array(new FieldValidator("Betreff", $betreff, FieldType::String),
-									new FieldValidator("Beitrag", $beitrag, FieldType::String)));
-	//Alle Feldeingaben d.h. Formular gültig?
-	if($form->isValid())
+	//Fehlerueberpfuefung
+	if($betreff == "")
+		$error[] = "Bitte geben Sie ein Betreff ein.<br />";
+	if($beitrag == "")
+		$error[] = "Bitte geben Sie einen Beitrag ein.<br />";
+	if(count($error) == 0)
 	{
 		//HTML; Anführungszeichen, Zeilenumbrüche umwandeln
 		$betreff = htmlspecialchars($betreff);
@@ -49,15 +45,6 @@ if (isset($_POST["betreff"]) && isset($_POST["beitrag"]))
 	</head>
 	<body>
 		<h1>Neuer Gästebuch Beitrag</h1>
-		<?php
-		//Wenn Fehler im Formular
-		if(isset($form) && $form->isValid() == false)
-		{
-			echo "<p style=\"color:red\">";
-			echo $form->getErrors();
-			echo "<p>";
-		}
-		?>
 		<form action="gb_eintrag.php" method="post">
 			Betreff:
 			<input type="text" name="betreff" /><br />

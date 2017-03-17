@@ -1,0 +1,22 @@
+CREATE TABLE gb_benutzer(
+    id INT(4) AUTO_INCREMENT PRIMARY KEY,
+    benutzer VARCHAR(30) UNIQUE,
+    passwort VARCHAR(32),
+    status TINYINT(1) DEFAULT 0,
+    email VARCHAR(40),
+    confirmationcode VARCHAR(60),
+    isadmin TINYINT(1) DEFAULT 0,
+    zeitpunkt TIMESTAMP
+);
+CREATE TABLE gb_gaestebuch(
+    id INT(4) AUTO_INCREMENT PRIMARY KEY,
+    benutzer_id INT(4),
+    betreff VARCHAR(40),
+    beitrag TEXT,
+    zeitpunkt TIMESTAMP
+);
+CREATE TABLE rating(
+	beitrag_id INT(4) PRIMARY KEY,
+	anzahl INT,
+	summe INT
+);

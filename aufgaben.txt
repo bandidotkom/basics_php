@@ -1,0 +1,154 @@
+Aufgaben
+1) Name, Einzelpreis, Liefereinheit aller Artikel der kategorien 1, 2 und 3
+SELECT Artikelname, Einzelpreis, Liefereinheit
+FROM Artikel
+WHERE KategorieNr IN (1,2,3)
+
+oder
+SELECT Artikelname, Einzelpreis, Liefereinheit
+FROM Artikel
+WHERE KategorieNr = 1 OR KategorieNr = 2 OR KategorieNr = 3
+
+2) Name, Einzelpreis, Lagerbestand, bestellte Einheiten aller Artikel, von denen mehr Einheiten bestellt wurden als im Lager vorrätig
+SELECT Artikelname, Einzelpreis, Lagerbestand, BestellteEinheiten
+FROM Artikel
+WHERE BestellteEinheiten > Lagerbestand
+
+3) Name aller Artikel, deren Liefereinheit das Wort Karton enthält
+SELECT ArtikelName
+FROM Artikel
+WHERE Liefereinheit REGEXP 'Karton'
+
+4) alle Informationen zu Artikeln, deren Einzelpreis zwischen 10 und 30 Euro liegt und von denen mindestens 10 im Lager vorhanden sind
+SELECT *
+FROM Artikel
+WHERE (Einzelpreis BETWEEN 10 AND 30) AND (Lagerbestand >= 10)
+
+5) Firma, Kontaktperson und Telefonnummer aller Lieferanten, in deren Telefonnummer ein Punkt, eine Klammer oder ein Bindestrich vorkommt
+SELECT `Firma`, `Kontaktperson`, `Telefon`
+FROM `Lieferanten`
+WHERE (`Telefon` REGEXP '[\.\(\)\-]')
+
+6) drei teuerste Artikel
+SELECT `Artikelname`, `Einzelpreis`
+FROM `Artikel`
+ORDER BY `Einzelpreis` DESC
+LIMIT 0,3
+
+7) Gesamtwert aller Artikel
+SELECT SUM(Einzelpreis) AS Gesamtwert
+FROM Artikel
+
+8) Anzahl der Auslaufartikel
+SELECT COUNT(*)
+FROM Artikel
+WHERE Auslaufartikel = 1
+
+9) Einzelpreis aller Auslaufartikel um 10% senken
+UPDATE Artikel
+SET Einzelpreis = 0.9*Einzelpreis
+WHERE Auslaufartikel = 1
+
+10) Name und Einzelpreis aller Artikel nach Einzelpreis sortiert
+SELECT Artikelname, Einzelpreis
+FROM Artikel
+Order BY Einzeilpreis DESC
+
+11) Name des teuersten Artikels
+SELECT Artikelname
+FROM Artikel
+ORDER BY Einzelpreis DESC
+LIMIT 1
+
+12) alle Auslaufartikel löschen
+DELETE FROM Artikel
+WHERE Auslaufartikel = 1
+
+13) Anzahl der von der Firma Exotic Liquids angebotenen Produkte
+SELECT COUNT(*)
+FROM Artikel A, Lieferanten L
+WHERE A.LieferantenNr = L.LieferantenNr AND L.Firma='Exotic Liquids'
+
+14) alle Artikel, die von Exotic Liquids geliefert werden
+SELECT Artikelname
+FROM Artikel A, Lieferanten L
+WHERE L.LieferantenNr = A.LieferantenNr
+AND Firma = "Exotic Liquids"
+
+15) Anzahl Artikel, die von Lieferanten aus den USA geliefert werden und von denen mehr als 20 im Lager vorrätig sind
+SELECT COUNT(*)
+FROM Artikel A, Lieferanten L
+WHERE L.LieferantenNr = A.LieferantenNr
+AND L.Land = 'USA' AND A.Lagerbestand > 20
+
+16) Kontaktpersonen der Lieferanten, die Produkte der Kategorien 1, 2 und 3 liefern
+SELECT Kontaktperson
+FROM Lieferanten L, Artikel A
+WHERE L.LieferantenNr = A.LieferantenNr
+AND A.KategorieNr IN (1,2,3)
+GROUP BY Kontaktperson
+
+17) Einzelpreise aller Produkte um 1/3 erhöhen, die von deutschen Firmen geliefert werden
+UPDATE Artikel A, Lieferanten L
+SET Einzelpreis = (1/3)*Einzelpreis
+WHERE L.LieferantenNr = A.LieferantenNr
+AND L.Land = 'Deutschland'
+
+18) Kunden, die bisher Chai bestellt haben
+SELECT Firma
+FROM Artikel A, Kunden K, bestellungen B
+WHERE A.Artikelname = "Chai"
+AND A.ArtikelNr = B.ArtikelNr
+AND K.KundenCode = B.KundenCode
+
+19) alle Kundennamen, die eine Bestellung aufgegeben haben, die Produkte beinhaltet, die von einem Berliner LIeferanten geliefert werden - nach Kundennamen aufsteigend sortiert
+SELECT K.Firma AS Kundenname, L.Ort
+FROM bestellungen B, Kunden K, Lieferanten L, Artikel A
+WHERE K.KundenCode = B.KundenCode
+AND A.ArtikelNr = B.ArtikelNr
+AND L.LieferantenNr = A.LieferantenNr
+AND L.Ort = "Berlin"
+ORDER BY K.Firma ASC
+
+20) zuletzt erfolgte Bestellung mit Zeitstempel, Kontaktperson, Artikelname, Einzelpreis, Stückzahl, Gesamtpreis
+SELECT Zeitstempel, Firma, Artikelname, Einzelpreis, Stueckzahl, Gesamtpreis
+FROM Kunden K, bestellungen B, Artikel A
+WHERE K.KundenCode = B.KundenCode AND B.ArtikelNr = A.ArtikelNr
+ORDER BY Zeitstempel DESC
+LIMIT 1
+
+21) Firmenname und Anzahl Kunden aller Lieferanten
+SELECT L.Firma, COUNT(K.KundenCode)
+FROM Lieferanten L, Kunden K, Artikel A, bestellungen B
+WHERE K.KundenCode = B.KundenCode
+AND A.ArtikelNr = B.ArtikelNr
+AND L.LieferantenNr = A.LieferantenNr
+GROUP BY L.Firma
+
+22) alle Lieferanten, die mehr als 3 Artikel liefern
+SELECT Firma, COUNT(ArtikelNr) AS Produkte
+FROM Lieferanten L, Artikel A
+WHERE L.LieferantenNr = A.LieferantenNr
+GROUP BY Firma
+HAVING Produkte > 3
+
+23) Lieferant mit größtem Umsatz
+SELECT L.Firma, SUM(Gesamtpreis) AS Umsatz
+FROM Lieferanten L, Artikel A, bestellungen B
+WHERE L.LieferantenNr = A.LieferantenNr
+AND A.ArtikelNr = B.ArtikelNr
+GROUP BY L.Firma
+ORDER BY Umsatz DESC
+LIMIT 1
+
+24) Artikel, die überdurchschnittlich zum Umsatz beitragen
+SELECT Artikelname, SUM(Gesamtpreis) AS Umsatz, AVG(Umsatz) AS dUmsatz
+FROM Artikel A, bestellungen B
+WHERE A.ArtikelNr = B.ArtikelNr
+AND Umsatz > dUmsatz
+GROUP BY Artikelname
+
+25) Lieferanten mit ihren jeweils teuersten Artikeln
+SELECT L.Firma, A.Artikelname, A.Einzelpreis
+FROM Lieferanten L, Artikel A
+WHERE
