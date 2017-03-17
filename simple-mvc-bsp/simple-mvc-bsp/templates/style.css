@@ -1,0 +1,17 @@
+body {
+	background-color: cornflowerblue;
+}
+
+a {
+	color: white;
+}
+
+#container {
+ width: 500px;
+ margin: auto;
+}
+
+.entry_header {
+  font-size: 10pt;
+		border-bottom: 1px solid black;
+}
